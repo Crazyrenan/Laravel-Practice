@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
 use App\Models\Project;
+use App\Models\Request as RequestModel;
+use App\Models\Vendor;
 class JoinController extends Controller
 {
     //Query
@@ -185,6 +187,9 @@ class JoinController extends Controller
     return response()->json($results);
     }
 
+
+    // Projects
+
     public function getProjectColumns()
     {
         $columns = DB::getSchemaBuilder()->getColumnListing('projects');
@@ -214,22 +219,144 @@ class JoinController extends Controller
         $results = $query->get();
         return response()->json($results);
     }
-    
-    public function insert(Request $request)
+    public function insertrequest(Request $request)
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'description' => 'required|string',
+            'email' => 'required|email|unique:request,email',
+            'phone' => 'required|string|max:20',
+            'department' => 'required|string|max:100',
             'status' => 'required|in:active,inactive',
         ]);
 
-        $project = Project::create([
+        $requestRecord = RequestModel::create([
             'name' => $validated['name'],
-            'description' => $validated['description'],
+            'email' => $validated['email'],
+            'phone' => $validated['phone'],
+            'department' => $validated['department'],
             'status' => $validated['status'],
         ]);
 
-        return response()->json(['message' => 'Project inserted successfully!', 'data' => $project]);
+        return response()->json(['message' => 'Request inserted successfully!', 'data' => $requestRecord]);
     }
+    
+    public function deleteRequest($id)
+    {
+    $request = RequestModel::find($id);
+
+    if (!$request) {
+        return response()->json(['message' => 'Request not found'], 404);
+    }
+
+    $request->delete();
+
+    return response()->json(['message' => 'Request deleted successfully!']);
+    }
+
+    public function updateRequest(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email',
+            'phone' => 'required|string|max:20',
+            'department' => 'required|string|max:100',
+            'status' => 'required|in:active,inactive',
+        ]);
+
+        DB::table('request')->where('id', $id)->update(array_merge(
+            $validated,
+            ['updated_at' => now()]
+        ));
+
+        return response()->json(['message' => 'Request updated successfully!']);
+    }
+
+    // Vendors
+    public function insertvendor(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:vendors,email',
+            'phone' => 'required|string|max:20',
+            'address' => 'required|string|max:255',
+            'company_name' => 'required|string|max:255',
+            'tax_id' => 'nullable|string|max:50',
+            'website' => 'nullable|url|max:255',
+            'status' => 'required|in:active,inactive',
+        ]);
+
+        $vendor = Vendor::create($validated);
+
+        return response()->json(['message' => 'Vendor inserted successfully!', 'data' => $vendor]);
+
+    }
+
+    public function deleteVendor($id)
+    {
+    $vendor = Vendor::find($id);
+
+    if (!$vendor) {
+        return response()->json(['message' => 'Vendor not found'], 404);
+    }
+
+    $vendor->delete();
+
+    return response()->json(['message' => 'Vendor deleted successfully!']);
+    }
+
+    public function updateVendor(Request $request, $id)
+    {
+    $validated = $request->validate([
+        'name' => 'required|string',
+        'email' => 'required|email',
+        'phone' => 'required|string',
+        'address' => 'required|string',
+        'company_name' => 'required|string',
+        'tax_id' => 'required|string',
+        'website' => 'nullable|url',
+        'status' => 'required|in:active,inactive'
+    ]);
+
+    DB::table('vendors')->where('id', $id)->update(array_merge(
+        $validated,
+        ['updated_at' => now()]
+    ));
+
+    return response()->json(['message' => 'Vendor updated successfully!']);
+    }
+
+
+
+
+    //Projects
+    public function deleteProject($id)
+    {
+    $project = Project::find($id);
+
+    if (!$project) {
+        return response()->json(['message' => 'Project not found'], 404);
+    }
+
+    $project->delete();
+
+    return response()->json(['message' => 'Project deleted successfully!']);
+    }
+
+    public function updateProject(Request $request, $id)
+    {
+    $validated = $request->validate([
+        'name' => 'required|string',
+        'description' => 'required|string',
+        'status' => 'required|in:active,inactive',
+    ]);
+
+    DB::table('projects')->where('id', $id)->update(array_merge(
+        $validated,
+        ['updated_at' => now()]
+    ));
+
+    return response()->json(['message' => 'Project updated successfully!']);
+    }
+    
 
 }

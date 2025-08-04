@@ -83,6 +83,7 @@
             <th class="px-3 py-2">Description</th>
             <th class="px-3 py-2">Status</th>
             <th class="px-3 py-2">Created at</th>
+            <th class="px-3 py-2">Action</th>
           </tr>
         </thead>
         <tbody id="project-table" class="divide-y divide-white/10 text-white/90">
@@ -91,22 +92,52 @@
       </table>
     </div>
   </div>
+  <div class="mt-4 fixed bottom-10 right-10 z-50">
+  <button id="editSelectedBtn" class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold px-4 py-2 rounded shadow-lg">
+    ✏️ Edit Selected Project
+  </button>
+</div>
+
 </main>
+<!-- Edit Modal -->
+<div id="editModal" class="hidden fixed mt-10 inset-0 z-50 flex items-center justify-center">
+  <div class="bg-zinc-900 text-white p-6 rounded-lg w-full max-w-2xl shadow-xl">
+    <h3 class="text-lg font-semibold mb-4">✏️ Edit Project</h3>
+    <form id="editForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <input type="hidden" id="edit_project_id">
+      <input type="text" id="edit_project_name" placeholder="Project Name" required class="px-4 py-2 rounded bg-white/10 border border-white/20">
+      <input type="text" id="edit_project_description" placeholder="Description" required class="px-4 py-2 rounded bg-white/10 border border-white/20">
+      <select id="edit_project_status" required class="px-4 py-2 rounded bg-white/10 border border-white/20">
+        <option value="">Select Status</option>
+        <option value="active">Active</option>
+        <option value="inactive">Inactive</option>
+      </select>
+      <div class="col-span-full flex justify-end gap-4 mt-4">
+        <button type="submit" class="bg-green-600 hover:bg-green-700 px-6 py-2 rounded text-white">💾 Save Changes</button>
+        <button type="button" onclick="$('#editModal').addClass('hidden')" class="bg-red-600 hover:bg-red-700 px-6 py-2 rounded text-white">❌ Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 
 <script>
 $(document).ready(function () {
   function renderProjectTable(data) {
     let rows = '';
     data.forEach((project, i) => {
-      rows += `
-        <tr class="hover:bg-white/5 transition">
-          <td class="px-3 py-2 text-center">${i + 1}</td>
-          <td class="px-3 py-2">${project.name}</td>
-          <td class="px-3 py-2">${project.description}</td>
-          <td class="px-3 py-2 capitalize">${project.status}</td>
-          <td class="px-3 py-2">${new Date(project.created_at).toLocaleDateString()}</td>
-        </tr>
-      `;
+     rows += `
+      <tr data-id="${project.id}" class="hover:bg-white/5 transition">
+        <td class="px-3 py-2 text-center">${i + 1}</td>
+        <td class="px-3 py-2">${project.name}</td>
+        <td class="px-3 py-2">${project.description}</td>
+        <td class="px-3 py-2 capitalize">${project.status}</td>
+        <td class="px-3 py-2">${new Date(project.created_at).toLocaleDateString()}</td>
+        <td class="px-3 py-2 text-center">
+            <button class="deleteBtn bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-xs">🗑️ Delete</button>
+        </td>
+      </tr>
+    `;
     });
     $('#project-table').html(rows);
   }
@@ -136,13 +167,79 @@ $(document).ready(function () {
 });
 </script>
 <script>
-function exportTableToExcel(tableId, filename = 'data.xlsx') {
-  const table = document.getElementById(tableId);
-  const wb = XLSX.utils.table_to_book(table, { sheet: "Sheet1" });
-  XLSX.writeFile(wb, filename);
-}
-</script>
+let selectedProjectId = null;
 
+$(document).on('click', '#project-table tr', function () {
+  $('#project-table tr').removeClass('bg-green-900');
+  $(this).addClass('bg-green-900');
+  selectedProjectId = $(this).data('id');
+});
+
+$('#editSelectedBtn').on('click', function () {
+  if (!selectedProjectId) {
+    alert('Please select a row first!');
+    return;
+  }
+
+  const row = $(`#project-table tr[data-id="${selectedProjectId}"]`);
+  $('#edit_project_id').val(selectedProjectId);
+  $('#edit_project_name').val(row.find('td:nth-child(2)').text());
+  $('#edit_project_description').val(row.find('td:nth-child(3)').text());
+  $('#edit_project_status').val(row.find('td:nth-child(4)').text().toLowerCase());
+  $('#editModal').removeClass('hidden flex');
+});
+
+$('#editForm').on('submit', function (e) {
+  e.preventDefault();
+
+  const id = $('#edit_project_id').val();
+  const data = {
+    name: $('#edit_project_name').val(),
+    description: $('#edit_project_description').val(),
+    status: $('#edit_project_status').val(),
+  };
+
+  $.ajax({
+    type: 'PUT',
+    url: `/api/projects/update/${id}`,
+    data: data,
+    success: function (res) {
+      alert(res.message || 'Project updated!');
+      $('#editModal').addClass('hidden');
+      selectedProjectId = null;
+      location.reload();
+    },
+    error: function (err) {
+      alert('Update failed: ' + (err.responseJSON?.message || 'Unknown error'));
+    }
+  });
+});
+
+// Delete button functionality
+$(document).on('click', '.deleteBtn', function () {
+  const row = $(this).closest('tr');
+  const id = row.data('id');
+
+  if (confirm('Are you sure you want to delete this project?')) {
+    $.ajax({
+      type: 'DELETE',
+      url: `/api/projects/delete/${id}`,
+      headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+      },
+      success: function (res) {
+        alert(res.message || 'Project deleted!');
+        row.remove();
+      },
+      error: function (err) {
+        alert('Delete failed: ' + (err.responseJSON?.message || 'Unknown error'));
+      }
+    });
+  }
+});
+
+
+</script>
 <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
 <script>
 $('#projectForm').on('submit', function (e) {
@@ -167,6 +264,15 @@ $('#projectForm').on('submit', function (e) {
     }
   });
 });
+</script>
+
+<!-- Excel-->
+<script>
+function exportTableToExcel(tableId, filename = 'data.xlsx') {
+  const table = document.getElementById(tableId);
+  const wb = XLSX.utils.table_to_book(table, { sheet: "Sheet1" });
+  XLSX.writeFile(wb, filename);
+}
 </script>
 
 </body>
