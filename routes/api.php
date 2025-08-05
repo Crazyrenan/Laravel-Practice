@@ -40,7 +40,22 @@ Route::post('/request/insert', [JoinController::class, 'insertrequest']);
 Route::delete('/requests/delete/{id}', [JoinController::class, 'deleteRequest']);
 Route::put('/requests/update/{id}', [JoinController::class, 'updateRequest']);
 
+// Report by Vendor
+Route::get('/report/pembelian/vendor', [userController::class, 'reportByVendor'])->name('report.vendor');
+// Report by Project
+Route::get('/report/pembelian/project', [userController::class, 'reportByProject'])->name('report.project');
+// Report by Month
+Route::get('/report/pembelian/month', [userController::class, 'reportByMonth'])->name('report.month');
+// Report by Category
+Route::get('/report/pembelian/category', [userController::class, 'reportByCategory'])->name('report.category');
+// Report by Request
+Route::get('/report/pembelian/request', [userController::class, 'reportByRequest'])->name('report.request');
 
+Route::get('/report/master', [userController::class, 'masterReport'])->name('report.master');
+
+
+
+Route::post('/pembelian/delete', [userController::class, 'deletePembelian']);
 
 
 

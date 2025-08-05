@@ -81,6 +81,15 @@ Route::get('/pembelian-search', function () {
     return view('pembelian_search'); // New blade file
 });
 
+Route::get('/dashboard', function () {
+    return view('dashboard');
+});
+
+Route::get('/reporting', function () {
+    return view('Master.report');
+});
+
+
 
 
 Route::get('/pembelian-master', [userController::class, 'pembelianMasterView']);

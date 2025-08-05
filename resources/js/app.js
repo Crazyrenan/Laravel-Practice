@@ -2,7 +2,7 @@ import './bootstrap';
 import 'flowbite';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
-import anime from 'animejs/lib/anime.es.js';
+import * as anime from 'animejs';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
