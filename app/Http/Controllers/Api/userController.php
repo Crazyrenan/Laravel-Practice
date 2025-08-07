@@ -83,167 +83,71 @@ class userController extends Controller
 
     //reporting 
 
-    public function reportByVendor(Request $request)
-    {
-        $sql = "
-        SELECT v.name AS vendor_name,
-            COUNT(p.id) AS total_orders,
-            SUM(p.total_price) AS total_amount 
-        FROM pembelian p
-        LEFT JOIN vendors v ON p.vendor_id = v.id
-        WHERE (:vendor_id IS NULL OR p.vendor_id = :vendor_id
-        GROUP BY p.vendor_id, v.name
-        ORDER BY total_orders DESC
-    ";
 
-        $data = DB::select($sql, [
-            'vendor_id' => $request->input('vendor_id', null),
-        ]);
+        public function getReportData(Request $request)
+        {
+            $vendorId = $request->input('vendor_id', null);
+            $projectId = $request->input('project_id', null);
+            $category = $request->input('category', null);
+            $requestedBy = $request->input('requested_by', null);
+            $month = $request->input('month', null);
 
-        $vendors = DB::select('SELECT id, name FROM vendors');
+            $query = DB::table('pembelian as p')
+                ->select(
+                    'p.id',
+                    'p.vendor_id',
+                    'p.project_id',
+                    'p.requested_by',
+                    'p.purchase_order_number',
+                    'p.item_name',
+                    'p.item_code',
+                    'p.category',
+                    'p.quantity',
+                    'p.unit',
+                    'p.buy_price',
+                    'p.unit_price',
+                    'p.total_price',
+                    'p.tax',
+                    'p.grand_total',
+                    'p.purchase_date',
+                    'p.expected_delivery_date',
+                    'v.name as vendor_name',
+                    'pr.name as project_name',
+                    'r.name as request_name'
+                )
+                ->leftJoin('vendors as v', 'p.vendor_id', '=', 'v.id')
+                ->leftJoin('projects as pr', 'p.project_id', '=', 'pr.id')
+                ->leftJoin('request as r', 'p.requested_by', '=', 'r.id');
 
-        return view('report.vendor', [
-            'data' => $data,
-            'vendors' => collect($vendors)->pluck('name', 'id'),
-        ]);
+                if ($vendorId) {
+                    $query->where('p.vendor_id', $vendorId);
+                }
+                if ($projectId) {
+                    $query->where('p.project_id', $projectId);
+                }
+                if ($category) {
+                    $query->where('p.category', $category);
+                }
+                if ($requestedBy) {
+                    $query->where('p.requested_by', $requestedBy);
+                }
+                if ($month) {
+                    $query->whereMonth('p.purchase_date', $month);
+                }
+
+                $data = $query->orderBy('p.purchase_date', 'desc')->get();
+
+                return response()->json($data);
+        }
+
+        public function reporting()
+        {
+            $vendors = DB::table('vendors')->select('id', 'name')->get();
+            $projects = DB::table('projects')->select('id', 'name')->get();
+            $requests = DB::table('request')->select('id', 'name')->get();
+            $categories = DB::table('pembelian')->distinct()->pluck('category');
+
+            return view('Master.report', compact('vendors', 'projects', 'requests', 'categories'));
+        }
+
     }
-
-    public function reportByProject(Request $request)
-    {
-        $sql = "
-        SELECT p.name AS project_name,
-            COUNT(b.id) AS total_orders,
-            SUM(b.total_price) AS total_amount 
-        FROM pembelian b
-        LEFT JOIN projects p ON b.project_id = p.id
-        WHERE (:project_id IS NULL OR b.project_id = :project_id)
-        GROUP BY b.project_id, p.name
-        ORDER BY total_orders DESC
-    ";
-        $data = DB::select($sql, [
-            'project_id' => $request->input('project_id', null),
-        ]);
-
-        $projects = DB::select('SELECT id, name FROM projects');
-        
-        return view('report.project', [
-            'data' => $data,
-            'projects' => collect($projects)->pluck('name', 'id'),
-        ]);
-
-
-    }
-
-    public function reportByMonth(Request $request)
-    {
-        $sql = "
-        SELECT MONTH(p.purchase_date) AS month,
-            COUNT(p.id) AS total_orders,
-            SUM(p.total_price) AS total_amount
-        FROM pembelian p
-        GROUP BY MONTH(p.purchase_date)
-        ORDER BY month DESC
-    ";
-        $data = DB::select($sql);
-
-       return view('report.month', compact('data'));
-
-    }
-
-    public function reportByCategory(Request $request)
-    {
-        $sql = "
-        SELECT p.category AS category,
-            COUNT(p.id) AS total_orders,
-            SUM(p.total_price) AS total_amount
-        FROM pembelian p
-        GROUP BY p.category
-        ORDER BY total_orders DESC
-        ";
-
-        $data = DB::select($sql);
-
-        return view('report.category', compact('data'));
-    }
-
-    public function reportByRequest(Request $request)
-    {
-        $sql = "
-            SELECT r.name AS request_name,
-                COUNT(p.id) AS total_orders,
-                SUM(p.total_price) AS total_amount
-            FROM pembelian p
-            LEFT JOIN request r ON p.requested_by = r.id
-            WHERE (:requested_by IS NULL OR p.requested_by = :requested_by)
-            GROUP BY p.requested_by, r.name
-            ORDER BY total_orders DESC
-        ";
-
-        $data = DB::select($sql, [
-            'requested_by' => $request->input('requested_by', null),
-        ]);
-
-        $requests = DB::select('SELECT id, name FROM request');
-
-        return view('report.request', [
-            'data' => $data,
-            'requests' => collect($requests)->pluck('name', 'id'),
-        ]);
-    }
-
-
-   public function masterReport()
-    {
-        $vendorData = DB::select("
-            SELECT v.name AS vendor_name,
-                COUNT(p.id) AS total_orders,
-                SUM(p.total_price) AS total_amount
-            FROM pembelian p
-            LEFT JOIN vendors v ON p.vendor_id = v.id
-            GROUP BY p.vendor_id, v.name
-        ");
-
-        $projectData = DB::select("
-            SELECT pr.name AS project_name,
-                COUNT(p.id) AS total_orders,
-                SUM(p.total_price) AS total_amount
-            FROM pembelian p
-            LEFT JOIN projects pr ON p.project_id = pr.id
-            GROUP BY p.project_id, pr.name
-        ");
-
-        $monthData = DB::select("
-            SELECT MONTH(purchase_date) as month,
-                COUNT(id) as total_orders,
-                SUM(total_price) as total_amount
-            FROM pembelian
-            GROUP BY MONTH(purchase_date)
-        ");
-
-        $categoryData = DB::select("
-            SELECT category,
-                COUNT(*) as total_orders,
-                SUM(total_price) as total_amount
-            FROM pembelian
-            GROUP BY category
-        ");
-
-        $requestData = DB::select("
-            SELECT r.name AS request_name,
-                COUNT(p.id) AS total_orders,
-                SUM(p.total_price) AS total_amount
-            FROM pembelian p
-            LEFT JOIN request r ON p.requested_by = r.id
-            GROUP BY p.requested_by, r.name
-        ");
-
-        return view('master.report', compact(
-            'vendorData',
-            'projectData',
-            'monthData',
-            'categoryData',
-            'requestData'
-        ));
-    }
-
-}

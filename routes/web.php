@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\api\userController;
+use App\Http\Controllers\reportController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -77,17 +78,17 @@ Route::get('/pembelianmaster', function () {
     return view('Master.pembelianmaster');
 });
 
-Route::get('/pembelian-search', function () {
-    return view('pembelian_search'); // New blade file
+
+Route::get('/reportvendor', function () {
+    return view('Reports.spendingReport');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-});
 
-Route::get('/reporting', function () {
-    return view('Master.report');
-});
+Route::get('/reported', [userController::class, 'reporting']);
+
+
+
+
 
 
 
@@ -96,13 +97,6 @@ Route::get('/pembelian-master', [userController::class, 'pembelianMasterView']);
 
 Route::post('/pembelian/delete', [userController::class, 'deletePembelian']);
 
-Route::get('/pembelianmaster', function () {
-    $vendors = DB::table('vendors')->get();
-    $projects = DB::table('projects')->get();
-    $requests = DB::table('request')->get();
-
-    return view('Master.pembelianmaster', compact('vendors', 'projects', 'requests'));
-});
 
 
 Route::get('/testing', [PurchaseController::class, 'index']);

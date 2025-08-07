@@ -32,7 +32,13 @@
                     ['label' => 'Vendors', 'href' => '/vendormaster', 'icon' => 'M9 6a3...', 'badge' => 12],
                     ['label' => 'Projects', 'href' => '/projectmaster', 'icon' => 'M2 6a2...'],
                     ['label' => 'Requests', 'href' => '/requestmaster', 'icon' => 'M4 4a2...', 'badge' => 3],
-                    ['label' => 'Purchases', 'href' => '/pembelianmaster', 'icon' => 'M10 2a4...']
+                    ['label' => 'Purchases', 'href' => '/pembelianmaster', 'icon' => 'M10 2a4...'],
+                ]],
+                 'reportData' => ['title' => 'Report Data', 'items' => [
+                    ['label' => 'Purchasing Report', 'href' => '/reported', 'icon' => 'M9 6a3...', 'badge' => 12],
+                    ['label' => 'Projects', 'href' => '/projectmaster', 'icon' => 'M2 6a2...'],
+                    ['label' => 'Requests', 'href' => '/requestmaster', 'icon' => 'M4 4a2...', 'badge' => 3],
+                    ['label' => 'Purchases', 'href' => '/pembelianmaster', 'icon' => 'M10 2a4...'],
                 ]],
                 'builderQueries' => ['title' => 'Builder Queries', 'items' => [
                     ['label' => 'Vendor Query', 'href' => '/vendor', 'icon' => 'M9 6a3...'],

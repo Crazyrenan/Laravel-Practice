@@ -4,6 +4,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\PembelianController;
 use App\Http\Controllers\Api\JoinController;
 use App\Http\Controllers\api\userController;
+use App\Http\Controllers\reportController;
+
+use function Pest\Laravel\get;
 
 Route::get('/pembelian/pembelians', [JoinController::class, 'showPembelian']);
 Route::get('/pembelian', [JoinController::class, 'pembelianView']);
@@ -51,11 +54,19 @@ Route::get('/report/pembelian/category', [userController::class, 'reportByCatego
 // Report by Request
 Route::get('/report/pembelian/request', [userController::class, 'reportByRequest'])->name('report.request');
 
-Route::get('/report/master', [userController::class, 'masterReport'])->name('report.master');
+Route::get('/report/data', [userController::class, 'getReportData'])->name('report.data');
+
+Route::get('/vendor-spending', [reportController::class, 'totalSpendingByVendor']);
+
+Route::get('/vendor-spending/{vendor_id}', [reportController::class, 'monthlySpendingByVendor']);
+
+Route::get('/vendor-spending-full', [reportController::class, 'exportAll']);
+
 
 
 
 Route::post('/pembelian/delete', [userController::class, 'deletePembelian']);
+
 
 
 
