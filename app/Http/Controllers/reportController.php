@@ -36,48 +36,112 @@ class reportController extends Controller
     }
 
 
-    
-    public function exportAll()
+    public function getMonthlyDetail($vendor_id, $month)
     {
-        $sql = "
-            SELECT vendors.name as vendor_name,
-                DATE_FORMAT(purchase_date, '%Y-%m') as month,
-                SUM(grand_total) as monthly_total
+        $year = substr($month, 0, 4);
+        $monthNumber = substr($month, 5, 2);
+
+        $details  = DB::select("
+            SELECT item_code, item_name, quantity, unit_price, total_price
             FROM pembelian
-            JOIN vendors ON pembelian.vendor_id = vendors.id
-            GROUP BY vendors.name, month
-            ORDER BY vendors.name, month
-        ";
-        $data = DB::select($sql);
+            WHERE vendor_id = ?
+            AND MONTH(purchase_date) = ?
+            AND YEAR(purchase_date) = ? ",
+            [$vendor_id, $monthNumber, $year]);
+
+
+            return response()->json($details);
+
+
+
+    }
+//category report
+    public function getQuantityByCategory()
+    {
+        $data = DB::select("
+            SELECT category,SUM(quantity) as total_quantity
+            FROM pembelian
+            GROUP BY category
+            ORDER BY total_quantity DESC");
+
         return response()->json($data);
     }
 
-    public function getVendorMonthlyDetails(Request $request)
+    public function getQuantityByCategoryPerMonth()
     {
-    $vendorId = $request->vendor_id;
-    $month = $request->month; // E.g. "Mar"
-    $year = $request->year ?? 2024;
+        $data = DB::select("
+            SELECT DATE_FORMAT(purchase_date, '%Y-%m') as month, 
+                   category, 
+                   SUM(quantity) as total_quantity
+            FROM pembelian
+            GROUP BY month, category
+            ORDER BY month, total_quantity DESC");
 
-    $monthMap = [
-        "Jan" => 1, "Feb" => 2, "Mar" => 3, "Apr" => 4,
-        "May" => 5, "Jun" => 6, "Jul" => 7, "Aug" => 8,
-        "Sep" => 9, "Oct" => 10, "Nov" => 11, "Dec" => 12,
-    ];
+        return response()->json($data);
+    }
 
-    $monthNum = $monthMap[$month];
+    public function getItemDetailsByMonthAndCategory(Request $request)
+    {
+        $month = $request->month;
+        $category = $request->category;
 
-    $details = DB::table('pembelian')
-        ->select('item_name', 'quantity', 'unit_price', 'total_price')
-        ->where('vendor_id', $vendorId)
-        ->whereYear('purchase_date', $year)
-        ->whereMonth('purchase_date', $monthNum)
-        ->get();
+        $data = DB::select("
+            SELECT item_code, item_name,quantity, unit_price, grand_total
+            FROM pembelian
+            WHERE DATE_FORMAT(purchase_date, '%Y-%m') = ? AND category = ?
+        ", [$month, $category]);
 
-        return response()->json($details);
+        return response()->json($data);
     }
 
 
-    
 
+//report status
+    public function purchaseReportVendor()
+    {
+        $vendors = DB::table('vendors')->select('id', 'name')->get();
+        print_r($vendors);
+        exit;
+        return view('Re', compact('vendors'));
+    }
 
+    public function getPurchaseReport(Request $request)
+    {
+        $month = $request->month;
+        $project = $request->project;
+        $status = $request->status;
+
+        $query = "
+            SELECT p.purchase_order_number, pr.name, p.item_name, p.quantity, p.unit, p.buy_price, p.total_price,
+                p.tax, p.grand_total, p.purchase_date, p.expected_delivery_date, p.status
+            FROM pembelian p
+            JOIN projects pr ON p.project_id = pr.id
+            WHERE 1=1
+        ";
+
+        $parameter = [];
+
+        // Filter by month (YYYY-MM format)
+        if (!empty($month)) {
+            $query .= " AND DATE_FORMAT(p.purchase_date, '%Y-%m') = ?";
+            $parameter[] = $month;
+        }
+
+        // Filter by vendor (numeric ID)
+        if (!empty($project)) {
+            $query .= " AND pr.id = ?";
+            $parameter[] = $project;
+        }
+
+        // Filter by status
+        if (!empty($status)) {
+            $query .= " AND p.status = ?";
+            $parameter[] = $status;
+        }
+
+        $query .= " ORDER BY p.purchase_date DESC";
+        $data = DB::select($query, $parameter);
+
+        return response()->json($data);
+    }
 }

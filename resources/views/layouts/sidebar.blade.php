@@ -35,10 +35,10 @@
                     ['label' => 'Purchases', 'href' => '/pembelianmaster', 'icon' => 'M10 2a4...'],
                 ]],
                  'reportData' => ['title' => 'Report Data', 'items' => [
-                    ['label' => 'Purchasing Report', 'href' => '/reported', 'icon' => 'M9 6a3...', 'badge' => 12],
-                    ['label' => 'Projects', 'href' => '/projectmaster', 'icon' => 'M2 6a2...'],
-                    ['label' => 'Requests', 'href' => '/requestmaster', 'icon' => 'M4 4a2...', 'badge' => 3],
-                    ['label' => 'Purchases', 'href' => '/pembelianmaster', 'icon' => 'M10 2a4...'],
+                    ['label' => 'Purchasing Report', 'href' => '/reported', 'icon' => 'M9 6a3...'],
+                    ['label' => 'Vendor Report', 'href' => '/reportvendor', 'icon' => 'M2 6a2...'],
+                    ['label' => 'Category Report', 'href' => '/categoryreport', 'icon' => 'M4 4a2...'],
+                    ['label' => 'Status Report', 'href' => '/exportreport', 'icon' => 'M10 2a4...'],
                 ]],
                 'builderQueries' => ['title' => 'Builder Queries', 'items' => [
                     ['label' => 'Vendor Query', 'href' => '/vendor', 'icon' => 'M9 6a3...'],

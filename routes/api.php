@@ -60,8 +60,18 @@ Route::get('/vendor-spending', [reportController::class, 'totalSpendingByVendor'
 
 Route::get('/vendor-spending/{vendor_id}', [reportController::class, 'monthlySpendingByVendor']);
 
-Route::get('/vendor-spending-full', [reportController::class, 'exportAll']);
+Route::get('/vendor-spending/{vendor_id}/{month}', [reportController::class, 'getMonthlyDetail']);
 
+Route::get('/quantity-by-category', [reportController::class, 'getQuantityByCategory']);
+
+Route::get('/monthly-quantity-category', [ReportController::class, 'getQuantityByCategoryPerMonth']);
+
+Route::get('/item-details-by-month-category', [ReportController::class, 'getItemDetailsByMonthAndCategory']);
+
+
+Route::get('/expected-delivery-date', [reportController::class, 'getPurchaseReport']);
+
+Route::get('/purchase-report', [reportController::class, 'purchaseReportVendor']);
 
 
 

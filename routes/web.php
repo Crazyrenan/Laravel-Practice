@@ -83,8 +83,19 @@ Route::get('/reportvendor', function () {
     return view('Reports.spendingReport');
 });
 
+Route::get('/categoryreport', function () {
+    return view('Reports.categoryreport');
+});
+
+Route::get('/exportreport', function () {
+    $projects = DB::table('projects')->select('id', 'name')->get();
+    
+    return view('Reports.ExportReport', compact('projects'));
+});
 
 Route::get('/reported', [userController::class, 'reporting']);
+
+
 
 
 

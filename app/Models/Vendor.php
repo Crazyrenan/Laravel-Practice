@@ -15,5 +15,7 @@ class Vendor extends Model
         'tax_id',
         'website',
         'status',
+        
     ];
+    
 }
