@@ -5,6 +5,9 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\api\userController;
 use App\Http\Controllers\reportController;
+use App\Http\Controllers\MenuController;
+use App\Http\Controllers\SubMenuController;
+use App\Http\Controllers\MenuSubmenuController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -100,8 +103,40 @@ Route::get('/reported', [userController::class, 'reporting']);
 
 
 
+// Show the menus page (Blade view)
+Route::get('/menus', [MenuController::class, 'view'])->name('menus.view');
+
+// Get menus data in JSON (for DataTables / AJAX)
+Route::get('/menus/data', [MenuController::class, 'index'])->name('menus.index');
+
+// CRUD actions
+Route::post('/menus/store', [MenuController::class, 'store'])->name('menus.store');
+Route::post('/menus/update/{id}', [MenuController::class, 'update'])->name('menus.update');
+Route::delete('/menus/{id}', [MenuController::class, 'destroy'])->name('menus.destroy');
 
 
+
+// Show the submenus page (Blade view)
+Route::get('/submenus', [SubMenuController::class, 'view'])->name('submenus.view');
+
+// Get submenus data in JSON (for DataTables / AJAX)
+Route::get('/submenus/data', [SubMenuController::class, 'index'])->name('submenus.index');
+
+// CRUD actions
+Route::post('/submenus/store', [SubMenuController::class, 'store'])->name('submenus.store');
+Route::post('/submenus/update/{id}', [SubMenuController::class, 'update'])->name('submenus.update');
+Route::delete('/submenus/{id}', [SubMenuController::class, 'destroy'])->name('submenus.destroy');
+
+
+
+
+// Merged menus + submenus page
+Route::get('/menus-submenus', [MenuSubmenuController::class, 'viewMerged'])->name('menus_submenus.view');
+
+
+
+
+// Purchase Controller
 
 
 Route::get('/pembelian-master', [userController::class, 'pembelianMasterView']);

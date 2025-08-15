@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>@yield('title', 'Dashboard')</title>
-    @vite('resources/css/app.css')
-    @stack('styles')
+    <meta charset="UTF-8">
+    <title>@yield('title', 'Dashboard')</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}"> {{-- <-- Add this line --}}
+    @vite('resources/css/app.css')
+    @stack('styles')
 </head>
 <body class="bg-gray-900 text-white flex">
 

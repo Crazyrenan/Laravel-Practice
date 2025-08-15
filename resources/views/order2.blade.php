@@ -1,77 +1,142 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Order Bulanan</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    @vite('resources/css/app.css')
-<div class="bg-gray-100 dark:bg-gray-900 min-h-screen py-6 px-4">
-  <div class="max-w-6xl mx-auto">
+  <meta charset="UTF-8" />
+  <title>Jumlah Order per Bulan — Dashboard</title>
 
-    <!-- Background-->
-<div class="fixed inset-0 z-0">
-   <img src="{{ asset('img/143.jpg') }}" class="absolute inset-0 w-full h-full object-cover opacity-30"/>
-    <div class="absolute inset-0 bg-black/40"></div> <!-- Dark overlay -->
-</div>
-  
-    <!-- Navigation Bar -->
-    <header class="sticky top-0 z-0 w-full backdrop-blur-md bg-white/60 dark:bg-gray-900/60 shadow-sm border-b border-white/20 dark:border-gray-700">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-        
-        <!-- Logo / Brand -->
-        <a href="/home" class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white hover:underline transition">
-        📊 All My Nodes
-        </a>
+  {{-- Tailwind via Vite --}}
+  @vite('resources/css/app.css')
 
-        <!-- Dark Mode Toggle -->
-        <button id="toggleDark" class="px-4 py-2 rounded-md bg-black text-white dark:bg-white dark:text-black transition duration-300 hover:opacity-80 hover:scale-105">
-        Toggle Dark Mode
-        </button>
+  {{-- Chart.js --}}
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
+  <style>
+    :root {
+      --glass-border: rgba(255, 255, 255, 0.08);
+    }
+
+    /* Glass panels */
+    .glass {
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid var(--glass-border);
+      border-radius: 14px;
+    }
+
+    /* Entrance animation */
+    .mount-up {
+      transform: translateY(10px);
+      opacity: 0;
+      animation: mountUp 500ms cubic-bezier(.2,.9,.3,1) forwards;
+    }
+    @keyframes mountUp {
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    /* Hover lift for nav buttons */
+    .nav-pill {
+      transition: transform .18s ease, box-shadow .18s ease, background-color .18s ease;
+    }
+    .nav-pill:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    }
+
+    /* Dark mode */
+    .dark .glass {
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.008));
+      border-color: rgba(255,255,255,0.04);
+    }
+  </style>
+</head>
+<body class="antialiased bg-gray-50 dark:bg-[#0b0b0f] text-slate-900 dark:text-slate-100">
+
+  <!-- Sticky Navbar -->
+  <header class="sticky top-0 z-50 backdrop-blur-md bg-white/60 dark:bg-[#06060a]/60 border-b border-white/10 dark:border-white/6">
+    <div class="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
+      <!-- Logo -->
+      <a href="/home" class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-violet-600 to-pink-500 flex items-center justify-center text-white shadow-sm">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M3 12h18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <span class="text-lg font-semibold">All My Nodes</span>
+      </a>
+
+      <!-- Navigation -->
+      <nav class="hidden sm:flex items-center gap-2">
+        <a href="/home" class="nav-pill px-3 py-2 rounded-md text-sm hover:bg-white/10 dark:hover:bg-white/5">Home</a>
+        <a href="/vendor2" class="nav-pill px-3 py-2 rounded-md text-sm hover:bg-white/10 dark:hover:bg-white/5">Vendor</a>
+        <a href="/status2" class="nav-pill px-3 py-2 rounded-md text-sm hover:bg-white/10 dark:hover:bg-white/5">Status</a>
+        <a href="/order2" class="nav-pill px-3 py-2 rounded-md text-sm hover:bg-white/10 dark:hover:bg-white/5">Order By Month</a>
+      </nav>
     </div>
-    </header>
+  </header>
 
+  <!-- Main Content -->
+  <main class="max-w-4xl mx-auto px-6 mt-12">
     <!-- Title -->
-    <div class="relative z-10 text-center mb-10">
-      <h2 class="text-3xl font-semibold tracking-tight text-gray-900 dark:text-white">Jumlah Order per Bulan</h2>
-      <p class="text-gray-500 dark:text-gray-400 text-sm">Statistik bulanan dari pembelian</p>
-    </div>
+    <section class="text-center mount-up">
+      <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Jumlah Order per Bulan</h1>
+      <p class="text-sm text-slate-500 dark:text-slate-400 mt-2">Statistik bulanan dari pembelian — ringkas dan mudah dibaca.</p>
+    </section>
 
     <!-- Chart -->
-    <div class="relative z-10 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg" data-aos="fade-in-up">
-      <canvas id="ordersChart" class="w-full h-auto"></canvas>
-    </div>
+    <section class="mt-8 glass p-6 shadow-lg mount-up" style="animation-delay: 100ms;">
+      <canvas id="ordersChart" class="w-full" height="220"></canvas>
+    </section>
 
-    <!-- Buttons -->
-    <div class="relative z-10 mt-10 flex flex-wrap justify-center gap-4 px-6">
-        <a href="/home" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-5 py-2 rounded-md shadow">🏠 Home</a>
-        <a href="/vendor2" class="bg-cyan-500 hover:bg-cyan-600 text-white font-semibold px-5 py-2 rounded-md shadow">📦 Vendor</a>
-        <a href="/status2" class="bg-pink-500 hover:bg-pink-600 text-white font-semibold px-5 py-2 rounded-md shadow">📈 Status</a>
-        <a href="/product2" class="bg-green-500 hover:bg-green-600 text-white font-semibold px-5 py-2 rounded-md shadow">📊 Avg Product</a>
-    </div>
+    <!-- Nav Buttons -->
+    <section class="mt-8 flex flex-wrap justify-center gap-4 mount-up" style="animation-delay: 200ms;">
+      <a href="/home" class="px-5 py-2 rounded-md bg-white/90 dark:bg-white/10 text-slate-900 dark:text-white glass nav-pill">🏠 Home</a>
+      <a href="/vendor2" class="px-5 py-2 rounded-md bg-cyan-600 text-white nav-pill">📦 Vendor</a>
+      <a href="/status2" class="px-5 py-2 rounded-md bg-pink-600 text-white nav-pill">📈 Status</a>
+      <a href="/order2" class="px-5 py-2 rounded-md bg-green-600 text-white nav-pill">🚚 Order By Month</a>
+    </section>
+  </main>
 
-    <!-- Detail Table -->
-    <div id="detailTableWrapper" class="hidden mt-10" data-aos="fade-in-up">
-      <h2 class="text-center font-bold text-xl text-gray-800 dark:text-white mb-4">Detail Order Bulan: <span id="selectedMonth"></span></h2>
-      <div class="overflow-x-auto">
-        <table class="min-w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl">
-          <thead class="bg-gray-100 dark:bg-gray-700">
-            <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-white-500 dark:text-gray-300 uppercase">Item Name</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-white-500 dark:text-gray-300 uppercase">Item Code</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-white-500 dark:text-gray-300 uppercase">Purchase Date</th>
-            </tr>
-          </thead>
-          <tbody id="detailTableBody" class="relative z-10 divide-y divide-gray-200 dark:divide-gray-600">
-            <!-- Dynamic Content -->
-          </tbody>
-        </table>
+  <div id="detailTableWrapper" class="hidden mt-14 max-w-5xl mx-auto animate-fade-up">
+      <h2 class="text-center font-bold text-xl mb-6">Detail Order Bulan: 
+          <span id="selectedMonth" class="text-indigo-500"></span>
+      </h2>
+      <div class="overflow-x-auto bg-white/60 dark:bg-gray-800/60 
+                  backdrop-blur-lg rounded-2xl shadow-lg border border-white/20">
+          <table class="min-w-full rounded-xl overflow-hidden">
+              <thead class="bg-gray-100/80 dark:bg-gray-700/80">
+                  <tr>
+                      <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase">Item Name</th>
+                      <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase">Item Code</th>
+                      <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase">Purchase Date</th>
+                  </tr>
+              </thead>
+              <tbody id="detailTableBody" class="divide-y divide-gray-200 dark:divide-gray-700">
+                  <!-- Dynamic Rows -->
+              </tbody>
+          </table>
       </div>
-    </div>
-
   </div>
+
 </div>
+
+<!-- Simple animations -->
+<style>
+@keyframes fade-up {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-in {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+.animate-fade-up { animation: fade-up 0.6s ease forwards; }
+.animate-fade-in { animation: fade-in 0.8s ease forwards; }
+</style>
 
     <script data-aos="zoom-in">
         const monthNames = [

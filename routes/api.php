@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\PembelianController;
 use App\Http\Controllers\Api\JoinController;
 use App\Http\Controllers\api\userController;
 use App\Http\Controllers\reportController;
+use App\Http\Controllers\MenuSubmenuController;
 
 use function Pest\Laravel\get;
 
@@ -125,3 +126,23 @@ Route::get('/pembelian/columns', [JoinController::class, 'getPembelianColumns'])
 
 Route::get('/pembelian/search', [JoinController::class, 'searchPembelian']);
 
+
+
+
+
+
+
+
+// Data fetch
+Route::get('/menus-submenus/data', [MenuSubmenuController::class, 'index'])->name('menus_submenus.index');
+
+// Menu CRUD
+Route::post('/menus-submenus/menu/store', [MenuSubmenuController::class, 'storeMenu']);
+Route::post('/menus-submenus/menu/update/{id}', [MenuSubmenuController::class, 'updateMenu']);
+Route::delete('/menus-submenus/menu/{id}', [MenuSubmenuController::class, 'destroyMenu']);
+
+Route::prefix('menus-submenus/submenu')->group(function () {
+    Route::post('/store', [MenuSubmenuController::class, 'storeSubMenu']);
+    Route::post('/update/{id}', [MenuSubmenuController::class, 'updateSubMenu']);
+    Route::delete('/{id}', [MenuSubmenuController::class, 'destroySubMenu']);
+});
