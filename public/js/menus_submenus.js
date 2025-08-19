@@ -2,12 +2,13 @@ document.addEventListener("DOMContentLoaded", function() {
     let menusData = [];
     let submenusData = [];
     
+    // Disable all "Add" buttons initially to prevent a race condition
     const addMenuBtn = document.getElementById('openMenuModalBtn');
     const addSubmenuBtn = document.getElementById('openSubmenuModalBtn');
     if (addMenuBtn) addMenuBtn.disabled = true;
     if (addSubmenuBtn) addSubmenuBtn.disabled = true;
 
-
+    // Utility function to open a custom message modal
     window.openMessageModal = function(title, body, confirmCallback = null) {
         document.getElementById('messageModalTitle').innerText = title;
         document.getElementById('messageModalBody').innerText = body;
@@ -28,7 +29,7 @@ document.addEventListener("DOMContentLoaded", function() {
         document.getElementById('messageModal').classList.remove('hidden');
     }
 
-
+    // Modal open/close functions
     window.openModal = function(modalId, isEdit = false) {
         const modal = document.getElementById(modalId);
         if (modal) {
@@ -64,7 +65,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
 
-
+    // Populates the parent menu dropdown in the submenu modal
     function populateMenuDropdown() {
         const select = document.getElementById('menu_id_submenu');
         select.innerHTML = '<option value="">Select a Menu</option>';
@@ -77,7 +78,7 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    
+    // Fetches all data and re-renders the tables
     function fetchAndRenderTables() {
         return fetch('/api/menus-submenus/data')
             .then(res => {
@@ -95,7 +96,7 @@ document.addEventListener("DOMContentLoaded", function() {
             .catch(error => console.error('Error fetching data:', error));
     }
 
-
+    // Renders the main menus table
     function renderMenusTable(menus) {
         const tableBody = document.getElementById('menusTableBody');
         if (!tableBody) return; 
@@ -144,13 +145,15 @@ document.addEventListener("DOMContentLoaded", function() {
             tableBody.appendChild(row);
         });
     }
-   
+    
+    // Corrected logic to ensure data is fetched before enabling buttons
     fetchAndRenderTables().then(() => {
+      // Enable the "Add" buttons only after the initial data fetch is complete
       if (addMenuBtn) addMenuBtn.disabled = false;
       if (addSubmenuBtn) addSubmenuBtn.disabled = false;
     });
 
-
+    // Event listeners for the main menu form and icon picker
     const iconPicker = document.getElementById('iconPicker');
     const selectedIconInput = document.getElementById('selected_icon');
     if (iconPicker) {
@@ -170,16 +173,14 @@ document.addEventListener("DOMContentLoaded", function() {
             const id = document.getElementById('menu_id').value;
             const position = parseInt(document.getElementById('position').value);
 
-            // Check if position is already taken for new menus
             if (!id) {
-                const isPositionTaken = menusData.some(menu => menu.position === position);
+                const isPositionTaken = menusData.some(menu => parseInt(menu.position) === position);
                 if (isPositionTaken) {
                     openMessageModal('Error', 'This position is already taken by another menu. Please choose a different position.');
                     return;
                 }
             } else {
-                // For editing, check if position is taken by another menu (not the current one)
-                const isPositionTaken = menusData.some(menu => menu.position === position && menu.id !== parseInt(id));
+                const isPositionTaken = menusData.some(menu => parseInt(menu.position) === position && parseInt(menu.id) !== parseInt(id));
                 if (isPositionTaken) {
                     openMessageModal('Error', 'This position is already taken by another menu. Please choose a different position.');
                     return;
@@ -203,15 +204,13 @@ document.addEventListener("DOMContentLoaded", function() {
             .then(res => {
                 closeModal('menuModal');
                 fetchAndRenderTables();
+                windows.location.reload();
             })
             .catch(error => console.error('Error submitting menu form:', error));
         });
     }
-
-    // Event listener for the submenu form
     const submenuForm = document.getElementById('submenuForm');
     if (submenuForm) {
-        // Corrected icon selection logic for the submenu modal
         const iconPickerSubmenu = document.getElementById('iconPickerSubmenu');
         const selectedIconInputSubmenu = document.getElementById('selected_icon_submenu');
         if (iconPickerSubmenu) {
@@ -229,20 +228,16 @@ document.addEventListener("DOMContentLoaded", function() {
             const id = document.getElementById('submenu_id').value;
             const parentId = parseInt(document.getElementById('menu_id_submenu').value);
             const position = parseInt(document.getElementById('position_submenu').value);
+            const submenusForParent = submenusData.filter(s => parseInt(s.id_menu) === parentId);
 
-            // Filter submenus for the specific parent menu
-            const submenusForParent = submenusData.filter(s => s.id_menu === parentId);
-
-            // Check if position is already taken for new submenus within the parent
             if (!id) {
-                const isPositionTaken = submenusForParent.some(submenu => submenu.position === position);
+                const isPositionTaken = submenusForParent.some(submenu => parseInt(submenu.position) === position);
                 if (isPositionTaken) {
                     openMessageModal('Error', 'This position is already taken by another submenu in this parent menu. Please choose a different position.');
                     return;
                 }
             } else {
-                // For editing, check if position is taken by another submenu (not the current one)
-                const isPositionTaken = submenusForParent.some(submenu => submenu.position === position && submenu.id !== parseInt(id));
+                const isPositionTaken = submenusForParent.some(submenu => parseInt(submenu.position) === position && parseInt(submenu.id) !== parseInt(id));
                 if (isPositionTaken) {
                     openMessageModal('Error', 'This position is already taken by another submenu in this parent menu. Please choose a different position.');
                     return;
@@ -272,6 +267,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 openMessageModal('Success', 'Submenu saved successfully!');
                 closeModal('submenuModal');
                 fetchAndRenderTables();
+                window.location.reload();
             } catch (error) {
                 console.error('Error submitting submenu form:', error);
                 openMessageModal('Error', error.message || 'A network error occurred. Please try again.');
@@ -299,6 +295,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 }).then(() => {
                     fetchAndRenderTables();
                     openMessageModal('Success', 'Menu deleted successfully!');
+                    window.location.reload();
                 }).catch(error => {
                     console.error('Error deleting menu:', error);
                     openMessageModal('Error', error.message || 'An error occurred while deleting the menu.');
@@ -306,7 +303,7 @@ document.addEventListener("DOMContentLoaded", function() {
             });
         }
 
-        // Handle submenu deletion
+ 
         const deleteSubmenuBtn = target.closest('.deleteSubmenuBtn');
         if (deleteSubmenuBtn) {
             const id = deleteSubmenuBtn.dataset.id;
@@ -322,6 +319,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 }).then(() => {
                     fetchAndRenderTables();
                     openMessageModal('Success', 'Submenu deleted successfully!');
+                    window.location.reload();
                 }).catch(error => {
                     console.error('Error deleting submenu:', error);
                     openMessageModal('Error', error.message || 'An error occurred while deleting the submenu.');
@@ -329,11 +327,10 @@ document.addEventListener("DOMContentLoaded", function() {
             });
         }
 
-        // Handle menu editing
         const editMenuBtn = target.closest('.editMenuBtn');
         if (editMenuBtn) {
             const id = editMenuBtn.dataset.id;
-            const menu = menusData.find(m => m.id == id);
+            const menu = menusData.find(m => parseInt(m.id) === parseInt(id));
             if (menu) {
                 openModal('menuModal', true);
                 document.getElementById('menu_id').value = menu.id;
@@ -359,15 +356,12 @@ document.addEventListener("DOMContentLoaded", function() {
         const editSubmenuBtn = target.closest('.editSubmenuBtn');
         if (editSubmenuBtn) {
             const id = editSubmenuBtn.dataset.id;
-            const submenu = submenusData.find(s => s.id == id);
+            const submenu = submenusData.find(s => parseInt(s.id) === parseInt(id));
             if (submenu) {
                 openModal('submenuModal', true);
                 document.getElementById('submenu_id').value = submenu.id;
                 document.getElementById('nama_submenu').value = submenu.nama;
-                
-                // This line is key: it sets the correct value from the fetched data
                 document.getElementById('menu_id_submenu').value = submenu.id_menu;
-
                 document.getElementById('link_submenu').value = submenu.link || '';
                 document.getElementById('status_submenu').value = submenu.status;
                 document.getElementById('position_submenu').value = submenu.position;

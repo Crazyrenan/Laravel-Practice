@@ -96,7 +96,7 @@
 
         <!-- Footer -->
         <div class="mt-6 border-t border-white/10 pt-4">
-            <a href="/settings" class="nav-item px-4 py-2 flex items-center gap-2 hover:bg-white/10 transition">
+            <a href="/menus-submenus" class="nav-item px-4 py-2 flex items-center gap-2 hover:bg-white/10 transition">
                 <svg class="nav-icon w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532..."/>
                 </svg>

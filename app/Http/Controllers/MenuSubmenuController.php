@@ -12,9 +12,7 @@ class MenuSubmenuController extends Controller
     // Show merged menus & submenus
     public function viewMerged()
     {
-        $menus = DB::table('menus')->orderBy('position')->get();
-        $submenus = DB::table('sub_menus')->get();
-        return view('Option.Menus_Submenus', compact('menus', 'submenus'));
+        return view('Option.Menus_Submenus');
     }
 
     // Get menus for AJAX
@@ -22,11 +20,11 @@ class MenuSubmenuController extends Controller
     {
         $menus = DB::table('menus')->orderBy('position')->get();
         $submenus = DB::table('sub_menus')->get();
-        
         return response()->json([
             'menus' => $menus,
             'submenus' => $submenus,
         ]);
+        
     }
 
      use ApiValidation;
