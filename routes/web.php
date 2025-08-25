@@ -8,6 +8,7 @@ use App\Http\Controllers\reportController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\SubMenuController;
 use App\Http\Controllers\MenuSubmenuController;
+use SebastianBergmann\CodeCoverage\Report\Xml\Report;
 
 Route::get('/', function () {
     return view('welcome');
@@ -134,7 +135,10 @@ Route::delete('/submenus/{id}', [SubMenuController::class, 'destroy'])->name('su
 Route::get('/menus-submenus', [MenuSubmenuController::class, 'viewMerged'])->name('menus_submenus.view');
 
 
-
+//import data
+Route::get('/reports/download-template', [ReportController::class, 'downloadPembelianTemplate'])->name('reports.downloadPembelianTemplate');
+Route::post('/reports/import-pembelian', [ReportController::class, 'importPembelian'])->name('reports.importPembelian');
+Route::post('/purchase-orders/update-import', [ReportController::class, 'updatePembelian'])->name('reports.updatePembelian');
 
 // Purchase Controller
 
