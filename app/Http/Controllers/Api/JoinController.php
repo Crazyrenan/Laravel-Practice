@@ -329,6 +329,28 @@ class JoinController extends Controller
 
 
     //Projects
+
+     public function insert(Request $request)
+    {
+        try {
+            $validatedData = $request->validate([
+                'name' => 'required|string|max:255',
+                'description' => 'required|string',
+                'status' => 'required|string',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'message' => 'Validation failed.',
+                'errors' => $e->errors()
+            ], 422);
+        }
+        $project = Project::create($validatedData);
+        return response()->json([
+            'message' => 'Project added successfully!',
+            'project' => $project
+        ], 201); 
+    }
+
     public function deleteProject($id)
     {
     $project = Project::find($id);

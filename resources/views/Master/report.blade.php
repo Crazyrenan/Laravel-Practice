@@ -81,8 +81,6 @@
             </select>
         </div>
 
-
-        <!-- Table Section -->
         <div class="bg-white/10 backdrop-blur-xl border border-white/10 shadow-2xl rounded-2xl overflow-hidden p-6" data-aos="fade-up" data-aos-delay="100">
             <table class="min-w-full table-auto text-sm text-left text-white" id="reportTable">
                 <thead class="uppercase text-gray-400 border-b border-white/20">

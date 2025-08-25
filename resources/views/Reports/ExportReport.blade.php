@@ -1,7 +1,5 @@
 @extends('layouts.appnew')
 
-@section('title', 'Purchase Order Status Report')
-
 @section('content')
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
@@ -56,7 +54,7 @@
     animation-duration: 0.5s;
     animation-fill-mode: forwards;
     animation-timing-function: ease;
-    opacity: 0; /* start hidden */
+    opacity: 0; 
 }
 </style>
 
@@ -65,7 +63,7 @@
     <div class="bg-gray-800 rounded-lg shadow-sm p-6 mb-6 fade-in-up" style="animation-delay: 0ms;">
         <div class="flex justify-between items-center flex-wrap">
             <div class="mb-4 md:mb-0">
-                <h1 class="text-3xl font-bold text-white mb-2">Purchase Order Status Report</h1>
+                <h1 class="text-3xl font-bold text-white mb-2">Status Report</h1>
                 <p class="text-gray-300">Track and monitor your purchase orders with detailed status information</p>
             </div>
             <div class="flex space-x-3 items-center flex-wrap">
@@ -242,9 +240,9 @@
             </div>
         </div>
 
-        <div class="overflow-x-auto">
-            <table class="w-full">
-                <thead class="bg-gray-700">
+        <div class="bg-white/10 backdrop-blur-xl border border-white/10 shadow-2xl rounded-2xl overflow-x-auto">
+            <table class="min-w-full table-auto text-sm text-left text-white">
+                <thead class="uppercase text-gray-400 border-b border-white/20">
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">PO Number</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Project</th>
@@ -259,7 +257,7 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Status</th>
                     </tr>
                 </thead>
-                <tbody id="report-table" class="bg-gray-800 divide-y divide-gray-700">
+                <tbody id="report-table" class="divide-y divide-white/10 text-white">
                     <tr>
                         <td colspan="12" class="px-6 py-8 text-center text-gray-400">
                             <i class="fas fa-inbox text-4xl mb-4 text-gray-600"></i>
